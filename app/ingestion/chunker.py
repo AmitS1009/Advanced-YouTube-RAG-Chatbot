@@ -3,6 +3,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from app.config.settings import settings
 from app.utils.logger import setup_logger
 
+from langsmith import traceable
+
 logger = setup_logger(__name__)
 
 class TimeAwareChunker:
@@ -14,6 +16,7 @@ class TimeAwareChunker:
         )
         self.window_size = settings.TIME_WINDOW_SECONDS
 
+    @traceable(name="create_chunks", run_type="tool")
     def create_chunks(self, transcript_items: List[Dict], video_id: str) -> List[Dict[str, Any]]:
         """
         Takes raw transcript items [{'text':..., 'start':..., 'duration':...}]

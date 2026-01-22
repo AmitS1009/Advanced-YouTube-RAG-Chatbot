@@ -3,12 +3,15 @@ from langchain_core.documents import Document
 from app.vectorstore.faiss_store import FaissVectorStore
 from app.utils.logger import setup_logger
 
+from langsmith import traceable
+
 logger = setup_logger(__name__)
 
 class DenseRetriever:
     def __init__(self, vector_store: FaissVectorStore):
         self.vector_store = vector_store
 
+    @traceable(name="dense_retrieval", run_type="retriever")
     def retrieve(self, query: str, top_k: int = 10) -> List[Tuple[Document, float]]:
         """
         Retrieves documents using vector similarity.

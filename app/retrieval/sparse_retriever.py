@@ -5,6 +5,7 @@ from langchain_core.documents import Document
 from rank_bm25 import BM25Okapi
 from app.config.settings import settings
 from app.utils.logger import setup_logger
+from langsmith import traceable
 
 logger = setup_logger(__name__)
 
@@ -43,6 +44,7 @@ class SparseRetriever:
         else:
             logger.info("No BM25 index found.")
 
+    @traceable(name="sparse_retrieval", run_type="retriever")
     def retrieve(self, query: str, top_k: int = 10) -> List[Tuple[Document, float]]:
         if not self.bm25 or not self.documents:
             logger.warning("BM25 index is empty.")

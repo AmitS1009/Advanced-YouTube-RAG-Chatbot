@@ -4,6 +4,8 @@ from app.llm.llm_client import LLMClient
 from app.config.prompts import ANSWER_VALIDATOR_PROMPT
 from app.utils.logger import setup_logger
 
+from langsmith import traceable
+
 logger = setup_logger(__name__)
 
 class AnswerValidator:
@@ -11,6 +13,7 @@ class AnswerValidator:
         self.llm = LLMClient().get_model()
         self.prompt = PromptTemplate.from_template(ANSWER_VALIDATOR_PROMPT)
 
+    @traceable(name="answer_validation", run_type="chain")
     def validate(self, question: str, answer: str, context: str) -> bool:
         """
         Checks if the answer is supported by the context.

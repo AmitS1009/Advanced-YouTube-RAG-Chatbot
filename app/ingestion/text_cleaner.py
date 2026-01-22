@@ -1,11 +1,13 @@
 import re
 from app.utils.logger import setup_logger
 
+from langsmith import traceable
+
 logger = setup_logger(__name__)
 
 class TextCleaner:
-    @staticmethod
-    def clean_text(text: str) -> str:
+    @traceable(name="clean_text", run_type="tool")
+    def clean_text(self, text: str) -> str:
         """
         Aggressive cleaning of the transcript text.
         1. Remove fillers (um, uh, you know) - careful not to remove semantic ones.

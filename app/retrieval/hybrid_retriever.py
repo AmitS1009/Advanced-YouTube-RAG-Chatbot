@@ -6,6 +6,8 @@ from app.retrieval.reranker import Reranker
 from app.utils.logger import setup_logger
 from app.config.settings import settings
 
+from langsmith import traceable
+
 logger = setup_logger(__name__)
 
 class HybridRetriever:
@@ -14,6 +16,7 @@ class HybridRetriever:
         self.sparse = sparse_retriever
         self.reranker = reranker
 
+    @traceable(name="hybrid_search_pipeline", run_type="chain")
     def search(self, query: str) -> List[Document]:
         """
         Executes hybrid search: Dense + Sparse -> Merge -> Rerank.

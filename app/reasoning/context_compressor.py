@@ -6,6 +6,8 @@ from app.llm.llm_client import LLMClient
 from app.config.prompts import CONTEXT_COMPRESSOR_PROMPT
 from app.utils.logger import setup_logger
 
+from langsmith import traceable
+
 logger = setup_logger(__name__)
 
 class ContextCompressor:
@@ -13,6 +15,7 @@ class ContextCompressor:
         self.llm = LLMClient().get_model()
         self.prompt = PromptTemplate.from_template(CONTEXT_COMPRESSOR_PROMPT)
 
+    @traceable(name="context_compression", run_type="chain")
     def compress(self, documents: List[Document]) -> List[Document]:
         """
         Summarizes each document to reduce noise.

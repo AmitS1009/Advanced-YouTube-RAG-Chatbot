@@ -4,6 +4,8 @@ from app.llm.llm_client import LLMClient
 from app.config.prompts import QUERY_REWRITE_PROMPT
 from app.utils.logger import setup_logger
 
+from langsmith import traceable
+
 logger = setup_logger(__name__)
 
 class QueryRewriter:
@@ -11,6 +13,7 @@ class QueryRewriter:
         self.llm = LLMClient().get_model()
         # self.prompt = PromptTemplate.from_template(QUERY_REWRITE_PROMPT) # This is no longer needed if prompt is constructed dynamically
 
+    @traceable(name="query_rewrite", run_type="chain")
     def rewrite(self, query: str) -> str:
         """
         Rewrites the user query to be search-optimized.

@@ -5,6 +5,8 @@ from app.reasoning.prompt_builder import PromptBuilder
 from app.evaluation.answer_validator import AnswerValidator
 from app.utils.logger import setup_logger
 
+from langsmith import traceable
+
 logger = setup_logger(__name__)
 
 class AnswerGenerator:
@@ -12,6 +14,7 @@ class AnswerGenerator:
         self.llm = LLMClient().get_model()
         self.validator = AnswerValidator()
 
+    @traceable(name="generate_answer", run_type="chain")
     def generate_answer(self, query: str, documents: list) -> Generator[str, None, None]:
         """
         Generates answer from documents with validation.

@@ -4,6 +4,8 @@ from sentence_transformers import CrossEncoder
 from app.config.settings import settings
 from app.utils.logger import setup_logger
 
+from langsmith import traceable
+
 logger = setup_logger(__name__)
 
 class Reranker:
@@ -13,6 +15,7 @@ class Reranker:
         logger.info(f"Loading reranker model: {model_name}")
         self.model = CrossEncoder(model_name)
 
+    @traceable(name="rerank", run_type="retriever")
     def rerank(self, query: str, documents: List[Document], top_k: int = 4) -> List[Document]:
         """
         Reranks a list of documents based on relevance to the query.

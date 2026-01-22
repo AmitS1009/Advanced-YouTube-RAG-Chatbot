@@ -5,9 +5,10 @@
 ![Streamlit](https://img.shields.io/badge/Streamlit-UI-red?style=for-the-badge&logo=streamlit&logoColor=white)
 ![LangSmith](https://img.shields.io/badge/LangSmith-Observability-green?style=for-the-badge)
 ![RAG](https://img.shields.io/badge/Architecture-Advanced%20RAG-purple?style=for-the-badge)
+![Cache](https://img.shields.io/badge/Performance-Dual%20Layer%20Caching-yellow?style=for-the-badge)
 
 > **"Not just a chatbot – an Agentic RAG pipeline architected for precision, reasoning, and strict grounding."**
-
+<img width="1919" height="964" alt="Screenshot 2026-01-22 131336" src="https://github.com/user-attachments/assets/aee16971-451e-4ab6-b470-e71b2c4411b0" />
 This project implements a **Production-Grade Retrieval Augmented Generation (RAG)** system capable of deep semantic analysis of YouTube content. It moves beyond simple vector search by implementing **14 core principles** of advanced RAG, including Hybrid Retrieval, Self-Correction, and Time-Aware Chunking.
 
 ---
@@ -66,6 +67,16 @@ Users ask vague questions ("What did he say about that?"). The **Query Rewriter*
 ### 5. 🔭 Enterprise Observability
 Integrated with **LangSmith** to trace every step of the reasoning chain. We don't just guess why an answer failed; we inspect the exact latency, token usage, and intermediate outputs of the RAG pipeline.
 
+### 6. ⚡ Performance Engineering (Dual-Layer Caching)
+- **Disk Caching**: Transcripts are locally cached (`data/transcripts/`) to prevent redundant API calls and enable offline development.
+- **Session Caching**: The Indexing layer is optimized to skip expensive embedding operations for already-processed videos in the active session.
+
+### 7. 🌊 Streaming Experience
+Unlike standard RAG that waits for the full answer, this agent generates the full response for **strict validation** first, then optimizes the UI to **stream** the result token-by-token for a premium user experience.
+
+### 8. 🛡️ Resilience & Fallbacks
+The system employs a "waterfall" strategy for ingestion. If the official YouTube API fails (no captions), it automatically degrades to `yt-dlp` to extract auto-generated subtitles, ensuring no video is left behind.
+
 ---
 
 ## 🛠️ Technology Stack
@@ -114,20 +125,7 @@ Integrated with **LangSmith** to trace every step of the reasoning chain. We don
    ```
 
 2. **Configure Environment**
-   Create a `.env` file from the example:
-   ```bash
-   ```
-   Add your keys:
-   ```env
-   GROQ_API_KEY=your_key_here
-   HUGGINGFACEHUB_API_TOKEN=your_key_here
-   
-   # Optional: LangSmith for Observability
-   LANGCHAIN_TRACING_V2=true
-   LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
-   LANGCHAIN_API_KEY=your_langsmith_key
-   LANGCHAIN_PROJECT="Youtube Chatbot"
-   ```
+   Create a `.env` file from the example
 
 3. **Run the Agent**
    ```bash

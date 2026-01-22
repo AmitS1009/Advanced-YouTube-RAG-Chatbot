@@ -25,8 +25,18 @@ def process_video_ingestion(url: str):
     """
     Handles the full ingestion flow: Load -> Clean -> Chunk -> Index.
     """
+    loader = YoutubeTranscriptLoader()
+    video_id = loader.extract_video_id(url)
+    
+    # Check Session Cache
+    if 'processed_videos' not in st.session_state:
+        st.session_state.processed_videos = set()
+        
+    if video_id in st.session_state.processed_videos:
+        st.success(f"Video {video_id} loaded from cache!")
+        return True
+
     with st.status("Ingesting video...", expanded=True) as status:
-        loader = YoutubeTranscriptLoader()
         transcript = loader.load_transcript(url)
         
         if not transcript:
@@ -43,7 +53,6 @@ def process_video_ingestion(url: str):
             
         st.write("Transcript cleaned.")
         
-        video_id = loader.extract_video_id(url)
         chunker = TimeAwareChunker()
         chunks = chunker.create_chunks(transcript, video_id=video_id)
         st.write(f"Created {len(chunks)} semantic chunks.")
@@ -56,6 +65,9 @@ def process_video_ingestion(url: str):
         from langchain_core.documents import Document
         docs = [Document(page_content=c['text'], metadata={k:v for k,v in c.items() if k!='text'}) for c in chunks]
         st.session_state.components['sparse_retriever'].create_index(docs)
+        
+        # Mark as processed
+        st.session_state.processed_videos.add(video_id)
         
         st.write("Indexing completed.")
         status.update(label="Ingestion Complete!", state="complete")

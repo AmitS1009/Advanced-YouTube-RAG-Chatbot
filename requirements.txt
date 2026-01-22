@@ -16,3 +16,4 @@ pandas
 numpy
 tqdm
 scikit-learn
+langsmith

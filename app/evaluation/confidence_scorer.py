@@ -3,10 +3,13 @@ from langchain_core.documents import Document
 from app.config.settings import settings
 from app.utils.logger import setup_logger
 
+from langsmith import traceable
+
 logger = setup_logger(__name__)
 
 class ConfidenceScorer:
     @staticmethod
+    @traceable(name="confidence_scoring", run_type="tool")
     def calculate_confidence(documents: List[Document]) -> str:
         """
         Evaluates confidence based on retrieval scores.
