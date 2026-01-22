@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.env
+.DS_Store
+data/
+venv/
+.idea/
+.vscode/
+debug_output.txt
+validator_debug.txt
+verify_pipeline.py
+test_llm.py
+pipeline_debug.log
