@@ -47,7 +47,7 @@ graph TD
 ## 🚀 Key Technical Features
 
 ### 1. 🧠 Hybrid Retrieval & Reranking
-We don't rely on vector similarity alone.
+I don't rely on vector similarity alone.
 - **Dense Retrieval**: FAISS index with `sentence-transformers/all-MiniLM-L6-v2` for semantic understanding.
 - **Sparse Retrieval**: BM25 algorithm to capture exact keyword matches (often missed by vectors).
 - **Reranking**: A Cross-Encoder model re-scores the top results from both streams to prioritize true relevance.
@@ -131,5 +131,4 @@ Users ask vague questions ("What did he say about that?"). The **Query Rewriter*
 - [ ] **GraphRAG**: Implementing Knowledge Graphs for entity-relationship mapping.
 - [ ] **Local LLM**: Full offline support using Ollama.
 
----
 
