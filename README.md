@@ -3,6 +3,7 @@
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)
 ![LangChain](https://img.shields.io/badge/LangChain-Integration-orange?style=for-the-badge&logo=langchain&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-UI-red?style=for-the-badge&logo=streamlit&logoColor=white)
+![LangSmith](https://img.shields.io/badge/LangSmith-Observability-green?style=for-the-badge)
 ![RAG](https://img.shields.io/badge/Architecture-Advanced%20RAG-purple?style=for-the-badge)
 
 > **"Not just a chatbot – an Agentic RAG pipeline architected for precision, reasoning, and strict grounding."**
@@ -62,6 +63,9 @@ Standard chunking breaks context. Our **Time-Aware Chunker** respects sentence b
 ### 4. 🔄 Query Transformation
 Users ask vague questions ("What did he say about that?"). The **Query Rewriter** module transforms conversational input into optimized search queries before they touch the index.
 
+### 5. 🔭 Enterprise Observability
+Integrated with **LangSmith** to trace every step of the reasoning chain. We don't just guess why an answer failed; we inspect the exact latency, token usage, and intermediate outputs of the RAG pipeline.
+
 ---
 
 ## 🛠️ Technology Stack
@@ -73,6 +77,7 @@ Users ask vague questions ("What did he say about that?"). The **Query Rewriter*
 | **Vector DB** | **FAISS (CPU)** | Efficient high-dimensional similarity search. |
 | **Backend** | **Python** | Core logic and data processing. |
 | **Frontend** | **Streamlit** | Interactive chat interface with threading. |
+| **Observability** | **LangSmith** | Full-stack tracing and monitoring of LLM chains. |
 | **Ingestion** | **Youtube-Transcript-API / yt-dlp** | Robust video data extraction with fallbacks. |
 
 ---
@@ -111,12 +116,17 @@ Users ask vague questions ("What did he say about that?"). The **Query Rewriter*
 2. **Configure Environment**
    Create a `.env` file from the example:
    ```bash
-   cp .env.example .env
    ```
    Add your keys:
    ```env
    GROQ_API_KEY=your_key_here
    HUGGINGFACEHUB_API_TOKEN=your_key_here
+   
+   # Optional: LangSmith for Observability
+   LANGCHAIN_TRACING_V2=true
+   LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
+   LANGCHAIN_API_KEY=your_langsmith_key
+   LANGCHAIN_PROJECT="Youtube Chatbot"
    ```
 
 3. **Run the Agent**
