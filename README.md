@@ -8,7 +8,8 @@
 ![Cache](https://img.shields.io/badge/Performance-Dual%20Layer%20Caching-yellow?style=for-the-badge)
 
 > **"Not just a chatbot – an Agentic RAG pipeline architected for precision, reasoning, and strict grounding."**
-<img width="1919" height="964" alt="Screenshot 2026-01-22 131336" src="https://github.com/user-attachments/assets/aee16971-451e-4ab6-b470-e71b2c4411b0" />
+<img width="1911" height="894" alt="image" src="https://github.com/user-attachments/assets/7a32b523-1439-46c1-8087-6df7fd7f59e0" />
+
 This project implements a **Production-Grade Retrieval Augmented Generation (RAG)** system capable of deep semantic analysis of YouTube content. It moves beyond simple vector search by implementing **14 core principles** of advanced RAG, including Hybrid Retrieval, Self-Correction, and Time-Aware Chunking.
 
 ---
