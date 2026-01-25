@@ -14,15 +14,28 @@ class QueryRewriter:
         # self.prompt = PromptTemplate.from_template(QUERY_REWRITE_PROMPT) # This is no longer needed if prompt is constructed dynamically
 
     @traceable(name="query_rewrite", run_type="chain")
-    def rewrite(self, query: str) -> str:
+    def rewrite(self, query: str, chat_history: list = None) -> str:
         """
-        Rewrites the user query to be search-optimized.
+        Rewrites the user query to be search-optimized, using history for context.
         """
+        history_str = ""
+        if chat_history:
+            # Format last 3 turns
+            recent = chat_history[-3:]
+            history_str = "\n".join([f"{msg['role'].upper()}: {msg['content']}" for msg in recent])
+
         prompt_template_str = (
-            f"You are a helpful assistant that rewrites user queries for better retrieval from a YouTube transcript.\n"
+            f"You are an expert search query optimizer.\n"
+            f"Chat History:\n{history_str}\n\n"
             f"Original Query: {query}\n"
-            f"Rewrite this query to be more specific, keyword-rich, and suitable for semantic search.\n"
-            f"IMPORTANT: Output ONLY the rewritten query text. Do not include any explanations, prefixes, or quotes."
+            f"Task: Rewrite the query to be an effective keyword search for a transcript.\n"
+            f"Rules:\n"
+            f"1. Resolve pronouns ('it', 'he', 'that') using Chat History.\n"
+            f"2. If the query asks about a specific named entity (e.g. 'AlphaFold', 'Demis'), KEEP IT EXPLICIT in the rewrite.\n"
+            f"3. Remove conversational filler ('what is', 'tell me about').\n"
+            f"4. Add 1-2 relevant synonyms or context keywords ONLY if the query is ambiguous.\n"
+            f"5. If the query is already a specific keyword, return it AS IS.\n"
+            f"Output ONLY the rewritten query text."
         )
         logger.info(f"Rewriting query: {query}")
         try:

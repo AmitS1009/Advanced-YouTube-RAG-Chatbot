@@ -1,4 +1,5 @@
 from typing import Generator
+import time
 from langchain_core.messages import SystemMessage, HumanMessage
 from app.llm.llm_client import LLMClient
 from app.reasoning.prompt_builder import PromptBuilder
@@ -55,6 +56,30 @@ class AnswerGenerator:
             response_msg = self.llm.invoke(messages)
             full_response = response_msg.content
             
+            # Post-Processing: Formatting
+            # User wants new line from one timestamp to another
+            # Pattern: [MM:SS] or (Start: MM:SS)
+            # We want to ensure there is a \n\n before/after citations if they mark section ends.
+            # Brute force: Replace "] " with "]\n\n" if it's likely a sentence end.
+            # Or better: Just replace all [MM:SS] with [MM:SS]\n\n if followed by text.
+            
+            # Simple fix: Replace any occurrence of timestamp citation with itself + double newline
+            # But only if it's the end of a thought? 
+            # User said "start from new line after content from one time stamp gets end".
+            # Usually the model puts citation at the end of the sentence.
+            # So [MM:SS].\n\n
+            
+            import re
+            # Add double newline after citations.
+            # Matches: [12:34], (Start: 12:34), (Chunk 1, Start: 12:34)
+            # Regex explanation:
+            # (\[\d{2}:\d{2}\]|\(.*?Start: \d{2,}:\d{2}.*?\))
+            # Catch standard [MM:SS] OR (...) containing "Start: MM:SS"
+            
+            full_response = re.sub(r'(\[\d{2}:\d{2}\]|\(.*?\d{2,}:\d{2}.*?\))', r'\1\n\n', full_response)
+            # Remove triple newlines if any created
+            full_response = full_response.replace("\n\n\n", "\n\n")
+            
             # Validation
             is_valid = self.validator.validate(query, full_response, context_str)
             
@@ -64,10 +89,16 @@ class AnswerGenerator:
             else:
                 # Mock streaming the trusted response
                 # (Since we have the full text, we can yield words)
-                chunk_size = 5 
-                words = full_response.split()
-                for i in range(0, len(words), chunk_size):
-                    yield " ".join(words[i:i+chunk_size]) + " "
+                # True Streaming Simulation
+                # Yield 1 word at a time with a tiny delay
+                words = full_response.split(" ")
+                for word in words:
+                    yield word + " "
+                    # Dynamic delay: punctuations take longer to "type"
+                    if word.endswith(('.', '?', '!')):
+                         time.sleep(0.015)
+                    else:
+                         time.sleep(0.005)
                     
         except Exception as e:
             logger.error(f"Error generating answer: {e}")

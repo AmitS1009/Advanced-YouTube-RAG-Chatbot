@@ -40,9 +40,9 @@ class ConfidenceScorer:
         HIGH_THRESHOLD = 2.0
         MEDIUM_THRESHOLD = 0.0
         
-        if top_score > HIGH_THRESHOLD:
+        if top_score > 0.5:
             return "HIGH"
-        elif top_score > MEDIUM_THRESHOLD:
+        elif top_score > -2.0:
             return "MEDIUM"
         else:
             return "LOW"

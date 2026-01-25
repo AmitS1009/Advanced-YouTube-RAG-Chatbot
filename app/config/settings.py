@@ -23,12 +23,12 @@ class Settings:
     EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL_NAME", "sentence-transformers/all-MiniLM-L6-v2")
 
     # RAG Parameters
-    CHUNK_SIZE = 500  # characters
-    CHUNK_OVERLAP = 100 # characters, approx 20-30%
-    TIME_WINDOW_SECONDS = 180 # 3 minutes
+    CHUNK_SIZE = 1000  # characters
+    CHUNK_OVERLAP = 200 # characters, approx 20-30%
+    TIME_WINDOW_SECONDS = 300 # 5 minutes
     
-    RETRIEVAL_TOP_K = 10
-    RERANK_TOP_K = 4
+    RETRIEVAL_TOP_K = 25
+    RERANK_TOP_K = 8
     
     SIMILARITY_THRESHOLD = 0.3
 

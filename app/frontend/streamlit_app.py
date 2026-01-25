@@ -100,8 +100,9 @@ def main():
 
     if 'pipeline_initialized' not in st.session_state:
         # Initialize components
+        # Added _v2 suffix to force cache invalidation after method signature change
         @st.cache_resource
-        def get_pipeline_components():
+        def get_pipeline_components_v2():
             vector_store = FaissVectorStore()
             sparse_retriever = SparseRetriever()
             reranker = Reranker()
@@ -121,7 +122,7 @@ def main():
                 'answer_generator': answer_generator
             }
 
-        st.session_state.components = get_pipeline_components()
+        st.session_state.components = get_pipeline_components_v2()
         st.session_state.pipeline_initialized = True
 
     # --- UI Setup ---
@@ -132,27 +133,7 @@ def main():
     with st.sidebar:
         st.header("Settings")
         
-        # Thread Management
-        st.subheader("Threads")
-        if st.button("New Chat"):
-            new_id = st.session_state.session_manager.create_thread()
-            st.session_state.current_thread_id = new_id
-            st.rerun()
-            
-        thread_ids = list(st.session_state.session_manager.threads.keys())
-        # Display friendly names or IDs
-        selected_thread = st.selectbox(
-            "History", 
-            thread_ids, 
-            index=thread_ids.index(st.session_state.current_thread_id)
-        )
-        if selected_thread != st.session_state.current_thread_id:
-            st.session_state.current_thread_id = selected_thread
-            st.rerun()
-
-        st.divider()
-        
-        # Input for Video URL
+        # 1. URL Input (Moved to Top)
         video_url = st.text_input("YouTube Video URL", placeholder="https://www.youtube.com/watch?v=...")
         if st.button("Process Video"):
             if video_url:
@@ -162,6 +143,32 @@ def main():
                     st.success("Ready to chat!")
             else:
                 st.warning("Please enter a URL.")
+                
+        st.divider()
+
+        # 2. Thread Management
+        st.subheader("Chat History")
+        if st.button("➕ New Chat", use_container_width=True):
+            new_id = st.session_state.session_manager.create_thread()
+            st.session_state.current_thread_id = new_id
+            st.rerun()
+            
+        st.write("---")
+        
+        # Display threads as a stack of buttons/selectable items
+        threads = st.session_state.session_manager.threads
+        # Sort by creation? Dict preserves insertion order in py3.7+, so reverse it for newest first
+        thread_ids = list(threads.keys())[::-1]
+        
+        for tid in thread_ids:
+            title = st.session_state.session_manager.get_title(tid)
+            # Highlight current
+            if tid == st.session_state.current_thread_id:
+                st.info(f"📍 {title}")
+            else:
+                if st.button(title, key=f"btn_{tid}", use_container_width=True):
+                    st.session_state.current_thread_id = tid
+                    st.rerun()
 
     # Main Chat Area
     if 'current_video_url' in st.session_state:
@@ -189,7 +196,16 @@ def main():
             
             # 1. Rewrite Query
             rewriter = st.session_state.components['query_rewriter']
-            rewritten_query = rewriter.rewrite(prompt)
+            # Fetch history for context awareness
+            thread_history = st.session_state.session_manager.get_thread(st.session_state.current_thread_id)
+            # Exclude the current prompt from history provided to rewriter (it's the 'Original Query')
+            # Actually, session_manager.add_message happens BEFORE this block in standard flow? 
+            # Checked code: add_message(user, prompt) happens at line 189. 
+            # So thread_history includes the current prompt.
+            # We want history *prior* to current prompt.
+            prior_history = thread_history[:-1] 
+            
+            rewritten_query = rewriter.rewrite(prompt, chat_history=prior_history)
             with st.expander("Search Process"):
                 st.write(f"**Rewritten Query:** {rewritten_query}")
 
@@ -212,7 +228,15 @@ def main():
             # 5. Generate & Stream
             answer_generator = st.session_state.components['answer_generator']
             
-            # If low confidence, maybe inject a prefix?
+            # Confidence Badge (Subtle)
+            if confidence == "HIGH":
+                st.caption("✅ High Confidence")
+            elif confidence == "MEDIUM":
+                st.caption("⚠️ Medium Confidence")
+            else:
+                 st.caption("🚨 Low Confidence")
+            
+             # If low confidence, maybe inject a prefix?
             prefix = ""
             if confidence == "LOW":
                 prefix = "**[Low Confidence]** "
